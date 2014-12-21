@@ -1,0 +1,69 @@
+PROGRAM LONGESTROUTE
+  IMPLICIT NONE
+  INTEGER :: TEMP_NODE,TEMP_NEIGHBOR,TEMP_COST,TOTAL_LINES = 0,TOTAL_NODE_COUNT
+  INTEGER :: err,I=0
+
+  ! Structural type definitions
+  TYPE :: Route
+    INTEGER :: Dest
+    INTEGER :: Cost
+  END TYPE Route
+
+  TYPE :: Node
+    TYPE(Route), DIMENSION(:), ALLOCATABLE :: Neighbors
+    INTEGER :: Current_count
+  END TYPE Node
+
+  TYPE (Node), DIMENSION(:), ALLOCATABLE :: NODES
+
+  INTEGER, DIMENSION(:), ALLOCATABLE :: NODE_NEIGHBOR_COUNT
+
+  OPEN(UNIT=10,FILE='agraph',STATUS='OLD',ACTION='READ',IOSTAT=err)
+  READ(10,'(I2)') TOTAL_NODE_COUNT
+
+  IF (err == 0) THEN
+    ALLOCATE(NODES(TOTAL_NODE_COUNT))
+    ALLOCATE(NODE_NEIGHBOR_COUNT(TOTAL_NODE_COUNT))
+    !WRITE (*,'(1X,"Allocated",I3," nodes.")') TOTAL_NODE_COUNT
+  ELSE
+    WRITE (*,*) "ERROR CODE: ",ERR
+    CLOSE(10)
+    STOP
+  END IF
+
+  ! Have to zero both out first
+  DO TEMP_NODE=1,TOTAL_NODE_COUNT
+    NODE_NEIGHBOR_COUNT(TEMP_NODE) = 0
+    NODES(TEMP_NODE)%Current_count = 0
+  END DO
+
+  ! Need to get total # of neighbors in the array so that we can
+  ! allocate the array of Nodes
+  COUNTNEIGHBORS: DO WHILE (err == 0)
+    100 FORMAT ('3I')
+    READ(10,*,IOSTAT=err) TEMP_NODE, TEMP_NEIGHBOR, TEMP_COST 
+    NODE_NEIGHBOR_COUNT(TEMP_NODE+1) = NODE_NEIGHBOR_COUNT(TEMP_NODE+1) + 1
+  ENDDO COUNTNEIGHBORS
+
+  ALLOCATENODES: DO TEMP_NODE=1,TOTAL_NODE_COUNT
+    ALLOCATE(NODES(TEMP_NODE)%Neighbors( NODE_NEIGHBOR_COUNT(TEMP_NODE+1) ))
+  ENDDO ALLOCATENODES
+
+  ! We've allocated right size for all of our arrays, so now we want to 
+  ! actually add the neighbors for each node.
+  REWIND(10)
+  READ(10,'(I2)') TOTAL_NODE_COUNT
+
+  ADDNEIGHBORS: DO TEMP_NODE=1,TOTAL_NODE_COUNT
+    !NODES(TEMP_NODE)%Neighbors
+  ENDDO ADDNEIGHBORS
+
+  ! DEBUG
+  DO TEMP_NODE=1,TOTAL_NODE_COUNT
+    WRITE (*,*) NODE_NEIGHBOR_COUNT(TEMP_NODE)
+  END DO
+
+
+  CLOSE(10)
+
+END PROGRAM LONGESTROUTE
