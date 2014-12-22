@@ -12,6 +12,32 @@ Module RouteTypesAndMethods
 
   contains
 
+  Recursive Function get_longest_path(nodes,length,node_counts,visited,current_node) Result(distance)
+    Implicit none
+    Type (node), dimension(length), Intent(in)    :: nodes
+    Integer, Intent(in)                           :: length
+    Integer, Dimension(length), Intent(in)        :: node_counts
+    Logical, Dimension(length), Intent(inout)     :: visited
+    Integer, Intent(in)                           :: current_node
+    Integer                                       :: distance
+    Integer :: I,temp_distance=0,curmax=0
+
+    visited(current_node) = .TRUE.
+    DO I=1,node_counts(current_node)
+      IF (visited( nodes(current_node)%Neighbors(I)%Dest)) THEN
+        CYCLE
+      END IF
+      temp_distance = nodes(current_node)%Neighbors(I)%Cost + &
+        get_longest_path(nodes,length,node_counts,visited,nodes(current_node)%Neighbors(I)%Dest)
+      IF (temp_distance > curmax) THEN
+        curmax=temp_distance
+      END IF
+    END DO
+    visited(current_node) = .FALSE.
+    distance = curmax
+
+  End Function get_longest_path
+
   Subroutine add_routes_to_neighbors(nodes,length,node_counts)
     Implicit none
     Integer, Intent(in)                           :: length
@@ -106,25 +132,35 @@ End Module RouteTypesAndMethods
 PROGRAM LONGESTROUTE
   Use RouteTypesAndMethods
   Implicit None
-  Integer :: temp_node,temp_neighbor,temp_cost,total_lines=0,total_node_count=0
+  Integer :: total_node_count=0
   Integer, Dimension(:), Allocatable :: node_lengths
-  Integer :: err=0,I=0,J=0
+  Integer :: I=0,J=0
+  Integer :: max_distance=0
+  Real    :: start_time=0.,end_time=0.
   Type (Node), Dimension(:), Allocatable :: Nodes
+  Logical, Dimension(:), Allocatable     :: visited
 
   ! Read first line and allocate nodes
   Call populate_node_array(Nodes,total_node_count)
   Allocate(node_lengths(total_node_count))
+  Allocate(visited(total_node_count))
   node_lengths = 0
+  visited      = .FALSE.
   ! Read rest of file and allocate lengths for each node's neighbor array
   Call populate_neighbors(Nodes,total_node_count,node_lengths)
   Call add_routes_to_neighbors(Nodes,total_node_count,node_lengths)
-  ! Debugging
-  DO I=1,total_node_count
-    WRITE (*,*) "NODE: ",I,"has",node_lengths(I),"length."
-    DO J=1,node_lengths(I)
-      WRITE(*,*) "    ","Destination: ",Nodes(I)%Neighbors(J)%Dest
-      WRITE(*,*) "    ","Cost:        ",Nodes(I)%Neighbors(J)%Cost
-    END DO
-  END DO
+  DO I=1,total_node_count !Debug
+    WRITE (*,*) "NODE: ",I,"has",node_lengths(I),"length." !Debug
+    DO J=1,node_lengths(I) !Debug
+      WRITE(*,*) "    ","Destination: ",Nodes(I)%Neighbors(J)%Dest !Debug
+      WRITE(*,*) "    ","Cost:        ",Nodes(I)%Neighbors(J)%Cost !Debug
+    END DO !Debug
+  END DO !Debug
 
+  I = 1
+  Call CPU_TIME(start_time)
+  !Recursive Function get_longest_path(nodes,length,node_counts,visited,current_node) Result(distance)
+  max_distance = get_longest_path(Nodes,total_node_count,node_lengths,visited,I)
+  Call CPU_TIME(end_time)
+  write (*,*) "Max distance is: ",max_distance
 END PROGRAM LONGESTROUTE
