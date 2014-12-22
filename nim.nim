@@ -22,7 +22,7 @@ for i in 1..lines.high:
 
     nodes[node].neighbours.add(Route(dest: neighbour, cost: cost))
 
-proc getLongestPath(nodeId: int): int=
+proc getLongestPath(nodeId: int): int =
     visited[nodeId] = true
 
     for neighbour in nodes[nodeId].neighbours:

@@ -36,11 +36,11 @@ fn read_places() -> Vec<Node> {
 }
 
 fn get_longest_path(nodes: &Vec<Node>, node_id: i32, visited: &mut Vec<bool>) -> i32 {
-    visited[node_id as uint] = true;
+    unsafe {*visited.unsafe_mut(node_id as uint) = true;}
     let mut max = 0i32;
 
     for neighbour in nodes[node_id as uint].neighbours.iter() {
-        if !visited[neighbour.dest as uint] {
+        if ! unsafe{*visited.unsafe_get(neighbour.dest as uint)} {
             let dist = neighbour.cost + get_longest_path(nodes, neighbour.dest, visited);
 
             if dist > max {
@@ -49,7 +49,7 @@ fn get_longest_path(nodes: &Vec<Node>, node_id: i32, visited: &mut Vec<bool>) ->
         }
     }
 
-    visited[node_id as uint] = false;
+    unsafe {*visited.unsafe_mut(node_id as uint) = false;}
     return max;
 }
 
@@ -59,6 +59,6 @@ fn main() {
     let startTime = precise_time_ns();
     let path = get_longest_path(&nodes, 0, &mut visited);
     let duration = (precise_time_ns() - startTime) / 1000000;
-    println!("{} LANGUAGE Rust {}", path, duration);
+    println!("{} LANGUAGE RustUnsafe {}", path, duration);
 }
 

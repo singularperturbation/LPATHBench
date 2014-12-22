@@ -2,13 +2,13 @@
 
 In this benchmark I thought it would be interesting to explore a less common pathfinding algorithm. Imagine you've just been "invited" to visit your in-laws (if you don't have inlaws, imagine you're driving a married friend), and want to find the longest possible route to the in-laws' house, in order to minimise the time spent with them. Now, you don't want your spouse (or your friend's spouse) to know you're stalling, so you can't visit the same place twice, can't just spend infinity hours driving in a circle. How would you find this longest path?
 
-One way is to create a graph with the nodes representing different intersections and the connections between these nodes representing the distances of the roads between these intersections. One can then solve it with the relatively simple approach of iterating through all possible routes to find the longest. You may be thinking this sounds incredibly slow, and it is, something like O(n!). Unfortunately however there are no known "fast" algorithms that can find this path; the problem has been proven to be NP complete, meaning if you can solve it in O(n^b) time, where b is a constant, then you get a [million dollar prize](http://en.wikipedia.org/wiki/Millennium_Prize_Problems#P_versus_NP).
+One way is to create a graph with the nodes representing different intersections and the connections between these nodes representing the distances of the roads between these intersections. One can then solve it with the relatively simple approach of iterating through all possible routes to find the longest. You may be thinking this sounds incredibly slow, and it is, something like O(n!). Unfortunately however there are no known "fast" algorithms that can find this path; the problem has been proven to be NP hard, meaning if you can solve it in O(n^b) time, where b is a constant, then you get a [million dollar prize](http://en.wikipedia.org/wiki/Millennium_Prize_Problems#P_versus_NP).
 
 The following table contains the most useful results for the benchmark, comparing each language against itself on ARMv7 and x86-64. 32 bit integers are used where possible, rather than machine-sized ones, to ensure both implementations use the same sized datatypes. OCaml is an exception, as non-machine-sized ints are boxed, so machine-sized ints are faster.
 
-Note that the algorithm finds the length of the longest path in the graph, but doesn't actually find all the steps in that path; this is purely laziness on my part, as the latter requires more effort to write. In my defence, most results for "longest path algorithm" on Google also seem to only give the length of the longest path, not the path itself.
+Note that the algorithm finds the length of the longest path in the graph that starts at node zero, but doesn't actually find all the steps in that path; this is purely laziness on my part, as the latter requires more effort to write. In my defence, most results for "longest path algorithm" on Google also seem to only give the length of the longest path, not the path itself.
 
-**Note**: *It's 2am in my timezone (AEST) at the time of writing this edit so I'm off to bed now; any further pull requests will have to wait around 8 hours to be pulled*
+**Note**: *The x86 laptop died while running it, so the current results are on a new machine: a quad core x86-64 Pentium n3530 at 2.16 ghz.*
 
 Just to clarify: I'm not comparing ARM and x86, I'm comparing language implementations on two common ARM and x86 platforms.
 
@@ -23,6 +23,8 @@ F#, Haskell, Rust and Dart send their apologies. F# didn't have an Arch Linux pa
 An aside: D only barely works. While sudo pacman -S ldc went down without a hitch, when I compiled and ran it the output was garbage unicode characters. Replacing D's writeln with standard C printf fixed this.
 
 **Edit:** Okay, I updated the ldc D compiler earlier today (incidentally, as part of upgrading my system with pacman -Syu), and now it doesn't compile at all. It was previously compiling, and ran at around 90% the speed of C++ on ARM.
+
+**Edit again:** I found a working D compiler, the GCC D compiler, but the executable it produces is really slow.
 
 The OpenJDK's performance on ARM shows how much performance depends on the implementation, not just the language. If you're a low-level person and looking for something useful to which to contribute, consider implementing a JIT compiler for OpenJDK on ARM. Even if it was only half as good as the Oracle one, you'd still be able to put on your resume that you made the ARM JVM five times faster.
 
@@ -77,6 +79,8 @@ Essentially, the former has max as a single mutable variable accessed and modifi
 Note though that the latter is still pretty imperative, in the sense that it uses an unboxed mutable vector of bools. I attempted to write a purely functional version, creating a new, modified array of bools every iteration, but this was unfathomably slow and memory-hungry.
 
 Anyway, here's the numbers you probably came here for. The x86-64 device is an Intel dual core i5 M430 2.27GHz laptop, running the latest Arch Linux, and the ARMv7 device is a Galaxy S3 with 2GB of ram and a quad-core 1.3ghz processor, runing the latest Arch Linux in a chroot.
+
+**Note:** *The jscached and c++cached versions here use a slightly different algorithm, so it's not fair to directly compare them to other implementations, but I include them here to show how important algorithm choice is.*
 
 **ARMv7**
 
@@ -311,7 +315,7 @@ I didn't write the Nim implementation, so can't comment on it, but from looking 
 
 **TLDR**
 
-* D and Nimrod both work on ARM and can generate fast code, but the D stdlib is buggy (have to use C printf instead of D writeln)
+* D and Nim both work on ARM and can generate fast code, but the D stdlib is buggy (have to use C printf instead of D writeln)
 * The OpenJDK's performance on ARM is a steaming pile of crap
 * C++ specialises std::vector<bool> to a bitvector by default, which can hurt performance. Using a std::bitset properly is however much faster, as it can be inlined.
 * Haskell can be faster than Java, thanks to unboxing

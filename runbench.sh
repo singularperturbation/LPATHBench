@@ -7,21 +7,29 @@ echo "Compiling..."
 make buildall
 
 runners=( "mono fs.exe"\
-	"./cpp"\
+	"./cpp_gcc"\
+	"./cpp_clang"\
+	"./cpp_cached"\
 	"./rkt"\
 	"mono -O=all ./cs.exe"\
 	"java jv"\
+	"julia julia.jl"\
 	"dart dart.dart"\
 	"./hs"\
 	"./ml"\
 	"./lisp"\
 	"./rs"\
+	"./rs_unsafe"\
 	"./go"\
 	"./gccgo"\
 	"./d"\
 	"./nim"\
+	"./crystal"\
 	"luajit lj.lua"\
-	"/usr/bin/oraclejava ojv")
+	"/usr/bin/oraclejava ojv"\
+	"node js.js"\
+	"node jscache.js")
+	#"perl perl.pl")
 
 echo "Running..."
 

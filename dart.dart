@@ -1,60 +1,58 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 class Route {
   final int dest, cost;
   Route(this.dest, this.cost);
 
-  function toString(){
-    print("$dest, $cost\n");
+  String toString() => "$dest $cost\n";
+}
+
+class Node {
+  final neighbours = <Route>[];
+}
+
+void readPlacesAndFindPath() {
+  var lines = new File('agraph').readAsLinesSync();
+  var numNodes = int.parse(lines[0]);
+  var nodes = new List.generate(numNodes, (_) => new Node());
+
+  for (var i = 1; i < lines.length; i++) {
+    var nums = lines[i].split(' ');
+    var node = int.parse(nums[0]);
+    var neighbour = int.parse(nums[1]);
+    var cost = int.parse(nums[2]);
+
+    nodes[node].neighbours.add(new Route(neighbour, cost));
   }
+
+  var visited = new List<bool>.generate(numNodes, (int index) => false);
+  var start = new DateTime.now();
+  var len = getLongestPath(nodes, 0, visited);
+  var duration = new DateTime.now().difference(start);
+
+  print("$len LANGUAGE Dart ${duration.inMilliseconds}");
 }
 
-class Node{
-  List<Route> neighbours;
-  Node(){
-    this.neighbours = new List<Route>();
-  }
-}
-
-readPlacesAndFindPath() {
-  var nodes;
-  new File('agraph').readAsLines().then((List<String> lines) {
-    final int numNodes = int.parse(lines[0]);
-    final nodes = new List<Node>.generate(numNodes, (int index) => new Node()); 
-    for(int i = 1; i < lines.length; i++){
-      final nums = lines[i].split(' ');
-      int node = int.parse(nums[0]);
-      int neighbour = int.parse(nums[1]);      
-      int cost = int.parse(nums[2]);
-      nodes[node].neighbours.add(new Route(neighbour,cost));
-    }
-    var visited = new List<Bool>.generate(numNodes, (int index) => false);
-    var start = new DateTime.now();
-    int len = getLongestPath(nodes, 0, visited);
-    var duration = new DateTime.now().difference(start);
-    duration = duration.inMilliseconds;
-    print("$len LANGUAGE Dart $duration");
-  });
-  return nodes;
-}
-
-getLongestPath(List<Node> nodes, int nodeID, List<Bool> visited){
+int getLongestPath(List<Node> nodes, int nodeID, List<bool> visited) {
   visited[nodeID] = true;
-  int max=0;
-  nodes[nodeID].neighbours.forEach((Route neighbour) {
-    if (!visited[neighbour.dest]){
-      final int dist = neighbour.cost + getLongestPath(nodes, neighbour.dest, visited);
-      if (dist > max){
-	max = dist;
-      }
+  var max = 0;
+  var neighbors = nodes[nodeID].neighbours;
+  var neighborsLength = neighbors.length;
+  for (var i = 0; i < neighborsLength; i++) {
+    var neighbor = neighbors[i];
+    var dest = neighbor.dest;
+    if (!visited[dest]) {
+      var dist = neighbor.cost + getLongestPath(nodes, dest, visited);
+      max = math.max(dist, max);
     }
-  });    
+  }
+
   visited[nodeID] = false;
+
   return max;
 }
 
-
-
-main() {
+void main() {
   readPlacesAndFindPath();
 }

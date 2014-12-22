@@ -2,13 +2,19 @@ NUM_NODES = 10
 WORLD_SIZE = 1000
 
 
-buildall: fsharp cpp racket csharp java haskell ocaml lisp rust go gccgo d nim oraclejava
+buildall: fsharp cpp-gcc cpp-clang racket csharp java haskell ocaml lisp rust rust_unsafe go gccgo d nim oraclejava crystal
 
 fsharp: fs.fs
 	fsharpc fs.fs
 
-cpp: cpp.cpp
-	g++ cpp.cpp -std=c++11 -Wall -O2 -march=native -o cpp
+cpp-gcc: cpp.cpp
+	g++ cpp.cpp -std=c++11 -Wall -O2 -march=native -DCOMPILER='"gcc"' -o cpp_gcc
+
+cpp-clang: cpp.cpp
+	clang++ cpp.cpp -std=c++11 -Wall -O2 -march=native -DCOMPILER='"clang"' -o cpp_clang
+
+cpp-cached: cpp_cached.cpp
+	clang++ cpp_cached.cpp -std=c++14 -Wall -O2 -march=native -o cpp_cached
 
 racket: rkt.rkt
 	raco exe rkt.rkt
@@ -29,7 +35,7 @@ haskellprof: hs.hs
 	ghc hs.hs -O3 -prof -fprof-auto -caf-all -fforce-recomp -rtsopts
 
 ocaml: ml.ml
-	ocamlfind ocamlopt -linkpkg -package str,unix -noassert -unsafe -fno-PIC -nodynlink -inline 100 -o ml ml.ml
+	ocamlfind ocamlopt -linkpkg -package unix -noassert -unsafe -fno-PIC -nodynlink -inline 100 -o ml ml.ml
 
 lisp: lisp.lisp
 	sbcl --core /usr/local/lib/sbcl/sbcl.core --load lisp.lisp --non-interactive
@@ -37,17 +43,23 @@ lisp: lisp.lisp
 rust: rs.rs
 	rustc rs.rs --opt-level=3
 
+rust_unsafe: rs_unsafe.rs
+	rustc rs_unsafe.rs --opt-level=3	
+
 go: go.go
 	go build go.go
 
 gccgo: gccgo.go
-	go build gccgo.go
+	gccgo -O3 -o gccgo gccgo.go
 
 d: d.d
 	ldc2 d.d -ofd -O3 -release -inline -boundscheck=off
 
+crystal: crystal.cr
+	crystal build crystal.cr --release
+
 nim: nim.nim
-	nim cc --cc:clang --opt:speed --checks:off -d:release nim.nim
+	nim c --cc:clang --passC:-march=native -d:release nim.nim
 
 graphbuilder: mkgraph.go
 	go build mkgraph.go

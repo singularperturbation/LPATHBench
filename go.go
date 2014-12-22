@@ -51,13 +51,13 @@ func getLongestPath(nodes []node, nodeID int32, visited []bool) int32 {
 	visited[nodeID] = true
 	var max int32
 	for _, neighbour := range nodes[nodeID].neighbours {
-		if !visited[neighbour.to] {
-			dist := neighbour.cost + getLongestPath(nodes, neighbour.to, visited)
-			if dist > max {
-				max = dist
-			}
+		if visited[neighbour.to] {
+			continue
 		}
-
+		dist := neighbour.cost + getLongestPath(nodes, neighbour.to, visited)
+		if dist > max {
+			max = dist
+		}
 	}
 	visited[nodeID] = false
 	return max
@@ -68,7 +68,6 @@ func main() {
 	visited := make([]bool, nNodes)
 	start := time.Now()
 	len := getLongestPath(nodes, 0, visited)
-	duration := time.Now().Sub(start).Nanoseconds() / 1000000
+	duration := time.Since(start).Nanoseconds() / 1000000
 	fmt.Printf("%v LANGUAGE Go %v\n", len, duration)
-
 }
