@@ -14,13 +14,16 @@ Module RouteTypesAndMethods
 
   Recursive Function get_longest_path(nodes,length,node_counts,visited,current_node) Result(distance)
     Implicit none
-    Type (node), dimension(length), Intent(in)    :: nodes
     Integer, Intent(in)                           :: length
+    Type (node), dimension(length), Intent(in)    :: nodes
     Integer, Dimension(length), Intent(in)        :: node_counts
     Logical, Dimension(length), Intent(inout)     :: visited
     Integer, Intent(in)                           :: current_node
     Integer                                       :: distance
-    Integer :: I,temp_distance=0,curmax=0
+    Integer :: I,temp_distance,curmax
+
+    temp_distance=0
+    curmax=0
 
     visited(current_node) = .TRUE.
     DO I=1,node_counts(current_node)
