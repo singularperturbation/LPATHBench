@@ -155,6 +155,5 @@ PROGRAM LONGESTROUTE
   !Recursive Function get_longest_path(nodes,length,node_counts,visited,current_node) Result(distance)
   max_distance = get_longest_path(Nodes,total_node_count,node_lengths,visited,I)
   Call CPU_TIME(end_time)
-  write (*,*) "Max distance is: ",max_distance
-  write (*,'("CPU TIME: ",F6.3)') end_time-start_time
+  write (*,'(I4," LANGUAGE Fortran_2003 ",I4)') max_distance, INT((end_time-start_time)*1000)
 END PROGRAM LONGESTROUTE
