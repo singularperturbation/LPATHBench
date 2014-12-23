@@ -68,7 +68,7 @@ Module RouteTypesAndMethods
       END DO
 
     ENDDO
-
+    CLOSE(10)
 
   End Subroutine add_routes_to_neighbors
   
@@ -132,7 +132,7 @@ PROGRAM LONGESTROUTE
   Implicit None
   Integer :: total_node_count=0
   Integer, Dimension(:), Allocatable :: node_lengths
-  Integer :: I=0,J=0
+  Integer :: I=0
   Integer :: max_distance=0
   Real    :: start_time=0.,end_time=0.
   Type (Node), Dimension(:), Allocatable :: Nodes
