@@ -11,13 +11,16 @@ fsharp: fs.fs
 	fsharpc fs.fs
 
 cpp-gcc: cpp.cpp
-	g++ cpp.cpp -std=c++11 -Wall -O2 -march=native -DCOMPILER='"gcc"' -o cpp_gcc
+	g++ cpp.cpp -std=c++14 -Wall -O2 -march=native -DCOMPILER='"gcc"' -o cpp_gcc
 
 cpp-clang: cpp.cpp
-	clang++ cpp.cpp -std=c++11 -Wall -O2 -march=native -DCOMPILER='"clang"' -o cpp_clang
+	clang++ cpp.cpp -std=c++14 -Wall -O2 -march=native -DCOMPILER='"clang"' -o cpp_clang
 
 cpp-cached: cpp_cached.cpp
 	clang++ cpp_cached.cpp -std=c++14 -Wall -O2 -march=native -o cpp_cached
+
+c: c.c
+	gcc -g -std=gnu99 -Wall -Wextra c.c  -O2 -march=native -o c -DUSE_HIGHBIT
 
 racket: rkt.rkt
 	raco exe rkt.rkt

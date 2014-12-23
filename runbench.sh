@@ -28,7 +28,9 @@ runners=( "mono fs.exe"\
 	"luajit lj.lua"\
 	"/usr/bin/oraclejava ojv"\
 	"node js.js"\
-	"node jscache.js")
+	"node jscache.js"\
+	"php php.php"\
+	"./c")
 	#"perl perl.pl")
 
 echo "Running..."

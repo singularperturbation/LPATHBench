@@ -146,7 +146,25 @@ getLongestPath5 !nodes !nodeID !visited =
                     totDist = cost + dist
                 in ((if totDist > maxDist then totDist else maxDist), lVisited')
 
-              
+
+getLongestPath6 :: V.Vector Node2 -> Int32 -> UMV.IOVector Bool -> IO Int32
+getLongestPath6 !nodes !nodeID !visited =  go nodeID visited
+  where
+    go :: Int32 -> UMV.IOVector Bool -> IO Int32
+    go nodeID visited = do
+      UMV.write visited (fromIntegral nodeID) True
+      max <- GV.foldM' acc (0::Int32) (nodes V.! (fromIntegral nodeID))
+      UMV.write visited (fromIntegral nodeID) False
+      return max
+    acc :: Int32 -> Route -> IO (Int32)
+    acc maxDist Route{dest,cost}  = do
+      isVisited <- UMV.read visited (fromIntegral dest)
+      case isVisited of
+        True -> return maxDist
+        False -> do
+          dist <- fmap (+ cost) $ go dest visited
+          return $ if dist > maxDist then dist else maxDist
+
 lPathFun :: V.Vector Node -> Int32 -> UMV.IOVector Bool -> IO (Int32)
 lPathFun !nodes !nodeID !visited = do
   UMV.write visited (fromIntegral nodeID) True
@@ -171,7 +189,7 @@ main = do
   let !nodes2 = V.map UV.fromList nodes
   --lPathFun nodes 0 visited >>= print
   !start <- getPOSIXTime
-  !len <- getLongestPath4 nodes2 0 visited
+  !len <- getLongestPath6 nodes2 0 visited
   !end <- getPOSIXTime
   printf "%d LANGUAGE Haskell %d\n" len (round $ 1000 * (end - start)::Int)
   --let (cost, _) = getLongestPath5 nodes2 0 (UV.replicate (fromIntegral numNodes) False)
